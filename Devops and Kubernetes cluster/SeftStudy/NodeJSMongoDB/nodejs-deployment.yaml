@@ -1,0 +1,54 @@
+#each deployment in a separated file
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodejs-deployment
+  labels:
+    app: nodejs-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels: #select app which belongs to the Deployment
+      app: nodejs-app #lable is key-value pairs
+  template:
+    metadata:
+      labels: #pod labels
+        app: nodejs-app 
+    spec:
+      imagePullSecrets:
+        - name: pull-nodejs-secret    
+      containers:
+      - name: nodejs-container      
+        image: asia.gcr.io/k8stutorial2022/nodejs-hoangnd:v1.0.0
+        #image: learnk8s/knote-js:1.0.0
+        #forces the Docker image to be downloaded, even if it was already downloaded
+        volumeMounts:
+          - name: nodejs-src-volume
+            mountPath: /app #path in container
+        imagePullPolicy: Always 
+        ports:
+          - containerPort: 3000
+        env:
+          - name: MONGO_URL
+            value: mongodb://mongo-service:27018/dev                  
+      volumes:
+      - name: nodejs-src-volume
+        hostPath:
+          #path: /Users/hoangnd/Documents/code/YoutubeChannel/Devops\ and\ Kubernetes\ cluster/SeftStudy/NodeJSMongoDB #directory location on host
+          path: /Users/hoangnd/Documents/temp/
+          type: Directory
+
+---          
+apiVersion: v1
+kind: Service #To expose your app, you need a Service
+metadata:
+  name: nodejs-service
+spec:
+  selector:
+    app: nodejs-app #selects the Pods to expose according to their labels
+    #app.kubernetes.io/name: nodejs-app
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 3002
+      targetPort: 3000 #port in container      
