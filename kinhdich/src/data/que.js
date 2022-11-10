@@ -1,4 +1,4 @@
-const que8 = [
+export const que8 = [
     {
         id: 1,
         name: "Càn",
@@ -89,7 +89,7 @@ const que8 = [
     }
 ] 
 
-const que64 = [
+export const que64 = [
     {
         id: 1,
         name: "Thuần Càn",        
